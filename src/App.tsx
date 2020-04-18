@@ -15,7 +15,7 @@ import avatar from './static/images/avatar.jpeg';
 const {createContext, useState, useMemo} = React;
 const {Header, Content, Footer} = Layout;
 const history = createBrowserHistory({
-    basename: process.env.NODE_ENV === 'development' ? '/' : '/output'
+    basename: process.env.NODE_ENV === 'development' ? '/' : '/translation-tool/output'
 });
 
 const defaultContext = {
