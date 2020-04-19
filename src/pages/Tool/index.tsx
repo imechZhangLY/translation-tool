@@ -7,19 +7,22 @@ import {withRouter, RouteComponentProps} from 'react-router-dom';
 import {Input, Button, Row, Col} from 'antd';
 import {saveAs} from 'file-saver';
 
-import {getLocalStorage, saveTextToDocument} from '../../utils';
+import {
+    getLocalStorage,
+    saveTextToDocument,
+    saveTranslateTextToLocalStorage,
+    getTranslateTextFromLocalStorage
+} from '../../utils';
 import {TextContext} from '../../App';
+import {Assistant} from '../../components/Assistant';
 import TextAreaType from 'antd/lib/input/TextArea';
 
 const {useState, useContext, useRef, useEffect} = React;
 const {TextArea} = Input;
 
-const TranslateTool = ({text}: {text: string}) => {
+const TranslateTool = ({text, onChange}: {text: string, onChange: (val: string) => void}) => {
     const [activeIndex, setActiveIndex] = useState(null);
-    text = text || getLocalStorage();
-    if (!text) {
-        return null;
-    }
+    const translateText: string[] = getTranslateTextFromLocalStorage();
 
     const arr = text.split(/(?<=[\.\!\?])/g)
         .map(item => item.trim())
@@ -27,18 +30,32 @@ const TranslateTool = ({text}: {text: string}) => {
 
     const inputElements = arr.map(() => useRef<TextAreaType>(null));
 
+    const getTranslateText = (elements: React.MutableRefObject<TextAreaType>[]): string[] => {
+        return elements.map(
+            ele => ele.current
+            ? ele.current.resizableTextArea.textArea.value
+            : ''
+        );
+    }
+
     useEffect(() => {
-        if (!activeIndex && inputElements[0] && inputElements[0].current) {
+        if (activeIndex == null && inputElements[0] && inputElements[0].current) {
             inputElements[0].current.focus();
+
+            inputElements.forEach((item, index) => {
+                if (item.current && translateText[index]) {
+                    item.current.setValue(translateText[index]);
+                }
+            });
         }
+
+        const text = getTranslateText(inputElements);
+
+        saveTranslateTextToLocalStorage(text);
     });
 
     const handleSave = () => {
-        const translateText = inputElements.map(
-            ele => ele.current
-            ? ele.current.resizableTextArea.textArea.value
-            : '暂无翻译'
-        );
+        const translateText = getTranslateText(inputElements);
 
         saveTextToDocument(arr, translateText).then(blob => {
             saveAs(blob, '英语生活号翻译.docx');
@@ -57,7 +74,10 @@ const TranslateTool = ({text}: {text: string}) => {
                             <TextArea
                                 ref={inputElements[index]}
                                 onBlur={() => setActiveIndex(Infinity)}
-                                onFocus={() => setActiveIndex(index)}
+                                onFocus={() => {
+                                    setActiveIndex(index);
+                                    onChange(arr[index]);
+                                }}
                                 onPressEnter={(event: React.KeyboardEvent) => {
                                     if (index + 1 < arr.length && inputElements[index + 1].current) {
                                         inputElements[index + 1].current.focus();
@@ -86,15 +106,21 @@ const TranslateTool = ({text}: {text: string}) => {
 
 const Tool = (props: RouteComponentProps) => {
     const [value, setValue] = useState('');
-    const {text} = useContext(TextContext);
+    let {text} = useContext(TextContext);
+    text = text || getLocalStorage();
+
+    if (!text) {
+        props.history.replace('/');
+    }
 
     return (
         <div className="home">
             <Row gutter={20} className="full">
                 <Col span={16} className="full">
-                    <TranslateTool text={text} />
+                    <TranslateTool text={text} onChange={(value: string) => setValue(value)}/>
                 </Col>
                 <Col span={8} className="full">
+                    <Assistant text={value} />
                 </Col>
             </Row>
         </div>

@@ -5,8 +5,6 @@
 
 import {Document, Packer, Paragraph, TextRun} from 'docx';
 
-const doc = new Document();
-
 export const combineArraysOneByOne = <T>(arr1: T[], arr2: T[]): T[] => {
     const result: T[] = [];
 
@@ -16,6 +14,8 @@ export const combineArraysOneByOne = <T>(arr1: T[], arr2: T[]): T[] => {
 } 
 
 export const saveTextToDocument = (originText: string[], translateText: string[]): Promise<Blob> => {
+    const doc = new Document();
+
     const text = combineArraysOneByOne(originText, translateText);
     doc.addSection({
         properties: {},

@@ -5,3 +5,4 @@
 
 export * from './localStorage';
 export * from './saveTextToDocument';
+export * from './setUserAgent'
