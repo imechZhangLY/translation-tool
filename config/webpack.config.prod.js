@@ -8,7 +8,7 @@ const paths = require('./paths');
 module.exports = {
     mode: 'production',
     output: {
-        filename: 'main.js',
+        filename: 'main.[contenthash].js',
         path: paths.output
     },
     optimization: {

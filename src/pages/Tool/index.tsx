@@ -59,7 +59,7 @@ const TranslateTool = ({text, onChange}: {text: string, onChange: (val: string) 
         const translateText = getTranslateText(inputElements);
 
         saveTextToDocument(arr, translateText).then(blob => {
-            saveAs(blob, filename + 'docx');
+            saveAs(blob, filename + '.docx');
             setDialogVisible(false);
         });
     }
