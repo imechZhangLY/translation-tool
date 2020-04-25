@@ -6,14 +6,14 @@ import * as React from 'react';
 import {withRouter, RouteComponentProps} from 'react-router-dom';
 import {Input, Button} from 'antd';
 
-import {setLocalStorage} from '../../utils';
+import {setLocalStorage, getLocalStorage} from '../../utils';
 import {TextContext} from '../../App';
 
 const {useState, useContext} = React;
 const {TextArea} = Input;
 
 const Home = (props: RouteComponentProps) => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState(getLocalStorage() || '');
     const {changeText} = useContext(TextContext);
 
     const handleConfirm = () => {

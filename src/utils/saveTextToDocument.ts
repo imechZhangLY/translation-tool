@@ -5,10 +5,14 @@
 
 import {Document, Packer, Paragraph, TextRun} from 'docx';
 
-export const combineArraysOneByOne = <T>(arr1: T[], arr2: T[]): T[] => {
+export const combineArraysOneByOne = <T>(...args: T[][]): T[] => {
     const result: T[] = [];
 
-    arr1.forEach((item, index) => result.push(item, arr2[index]));
+    args[0].forEach((item, index) => {
+        args.forEach(arr => {
+            result.push(arr[index]);
+        })
+    });
 
     return result;
 } 
@@ -16,7 +20,7 @@ export const combineArraysOneByOne = <T>(arr1: T[], arr2: T[]): T[] => {
 export const saveTextToDocument = (originText: string[], translateText: string[]): Promise<Blob> => {
     const doc = new Document();
 
-    const text = combineArraysOneByOne(originText, translateText);
+    const text = combineArraysOneByOne(originText, translateText, originText.map(item => ''));
     doc.addSection({
         properties: {},
         children: text.map((item, index) => (new Paragraph({
@@ -24,7 +28,7 @@ export const saveTextToDocument = (originText: string[], translateText: string[]
                 new TextRun({
                     text: item,
                     font: {
-                        name: index % 2 === 0 ? 'Times New Roman' : '宋体'
+                        name: index % 3 === 0 ? 'Times New Roman' : '宋体'
                     }
                 })
             ]

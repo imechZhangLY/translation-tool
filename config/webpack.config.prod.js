@@ -2,7 +2,7 @@
  * @file 生产环境的webpack配置
  * @author zhangluyao01
  */
-const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 const paths = require('./paths');
 
 module.exports = {
@@ -11,5 +11,8 @@ module.exports = {
         filename: 'main.js',
         path: paths.output
     },
-    optimization: {}
+    optimization: {
+        minimize: true,
+        minimizer: [new TerserPlugin()]
+    }
 };

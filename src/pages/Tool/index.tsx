@@ -11,10 +11,12 @@ import {
     getLocalStorage,
     saveTextToDocument,
     saveTranslateTextToLocalStorage,
-    getTranslateTextFromLocalStorage
+    getTranslateTextFromLocalStorage,
+    splitText
 } from '../../utils';
 import {TextContext} from '../../App';
 import {Assistant} from '../../components/Assistant';
+import {SaveDialog} from '../../components/SaveDialog';
 import TextAreaType from 'antd/lib/input/TextArea';
 
 const {useState, useContext, useRef, useEffect} = React;
@@ -22,11 +24,10 @@ const {TextArea} = Input;
 
 const TranslateTool = ({text, onChange}: {text: string, onChange: (val: string) => void}) => {
     const [activeIndex, setActiveIndex] = useState(null);
+    const [dialogVisible, setDialogVisible] = useState(false);
     const translateText: string[] = getTranslateTextFromLocalStorage();
 
-    const arr = text.split(/(?<=[\.\!\?])/g)
-        .map(item => item.trim())
-        .filter(item => !!item);
+    const arr = splitText(text);
 
     const inputElements = arr.map(() => useRef<TextAreaType>(null));
 
@@ -54,17 +55,18 @@ const TranslateTool = ({text, onChange}: {text: string, onChange: (val: string) 
         saveTranslateTextToLocalStorage(text);
     });
 
-    const handleSave = () => {
+    const handleSave = (filename: string) => {
         const translateText = getTranslateText(inputElements);
 
         saveTextToDocument(arr, translateText).then(blob => {
-            saveAs(blob, '英语生活号翻译.docx');
+            saveAs(blob, filename + 'docx');
+            setDialogVisible(false);
         });
     }
 
     return (
-        <div className="translate-area">
-            <ol>
+        <div style={{height: '100%'}}>
+            <ol className="translate-area">
                 {
                     ...arr.map((item, index) => (
                         <li key={index}>
@@ -94,12 +96,17 @@ const TranslateTool = ({text, onChange}: {text: string, onChange: (val: string) 
                     ))
                 }
             </ol>
-            <div style={{marginTop: 15, marginLeft: 40}}>
+            <div style={{marginTop: 15}}>
                 <Button
                     type="primary"
-                    onClick={handleSave}
+                    onClick={() => setDialogVisible(true)}
                 >保存</Button>
             </div>
+            <SaveDialog
+                visible={dialogVisible}
+                handleSave={handleSave}
+                handleCancel={() => setDialogVisible(false)}
+            />
         </div>
     )
 }

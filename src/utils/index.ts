@@ -5,4 +5,5 @@
 
 export * from './localStorage';
 export * from './saveTextToDocument';
-export * from './setUserAgent'
+export * from './setUserAgent';
+export * from './splitText';
